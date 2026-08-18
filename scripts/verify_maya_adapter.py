@@ -36,4 +36,15 @@ print("freeze ok")
 adapter.delete_history(["SM_TestCube"])
 print("delete history ok")
 
+# 蒙皮保护：造一个带 skinCluster 的 mesh，确认走 bakePartialHistory 而非裸删
+skin_mesh = cmds.polyCube(name="SM_Skinned")[0]
+cmds.select(skin_mesh)
+joints = [cmds.joint(p=(0, 0, 0)), cmds.joint(p=(0, 1, 0))]
+cmds.skinCluster(joints[0], skin_mesh, toSelectedBones=True)
+print("skin cluster:", cmds.ls(cmds.listHistory(skin_mesh, pruneDagObjects=True), type="skinCluster"))
+
+adapter.delete_history([skin_mesh])
+print("skinned delete_history (bakePartialHistory) ok; skinCluster=",
+      cmds.ls(type="skinCluster"))
+
 print("MAYA ADAPTER VERIFY DONE")

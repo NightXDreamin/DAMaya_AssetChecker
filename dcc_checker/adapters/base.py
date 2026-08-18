@@ -9,7 +9,18 @@
 """
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Iterable, List, Optional
+
+
+def should_bake_history(deformer_node_types: Iterable[str]) -> bool:
+    """判断某网格的变形器链是否需要「蒙皮保护」清理。
+
+    若存在 ``skinCluster`` 或 ``blendShape``，裸 ``delete(constructionHistory=True)``
+    会破坏蒙皮权重 / 变形目标，必须改用 ``bakePartialHistory`` 保守路径。
+    纯函数，可脱离 Maya 单测。
+    """
+    protected = ("skinCluster", "blendShape")
+    return any(t in protected for t in deformer_node_types)
 
 
 class BaseAdapter:

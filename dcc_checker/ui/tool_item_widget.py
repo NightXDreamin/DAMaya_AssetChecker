@@ -10,7 +10,6 @@ from dcc_checker.ui.common import (
     QtDrag,
     QtGui,
     QtMimeData,
-    QtPoint,
     QtWidgets,
 )
 from dcc_checker.ui.styles import (
@@ -30,9 +29,6 @@ from dcc_checker.ui.styles import (
 
 class ToolItemWidget(QtWidgets.QFrame):
     """面板工具列表中的一行卡片组件。"""
-
-    # 信号定义（便于父组件监听单条工具运行事件）
-    request_run = QtCore.Signal(object) if QtCore is not None else None
 
     def __init__(self, tool_cls, parent=None, run_callback: Optional[Callable] = None):
         super().__init__(parent)
@@ -57,9 +53,10 @@ class ToolItemWidget(QtWidgets.QFrame):
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(8)
 
-        # 1. 勾选框
+        # 1. 勾选框 —— 只有检测类工具默认勾选，动作类默认不勾（避免误执行破坏性操作）
+        is_checker = getattr(tool_cls, "is_checker", True)
         self.checkbox = QtWidgets.QCheckBox()
-        self.checkbox.setChecked(True)
+        self.checkbox.setChecked(is_checker)
         layout.addWidget(self.checkbox)
 
         # 2. 工具主信息（标题与描述）
@@ -77,7 +74,6 @@ class ToolItemWidget(QtWidgets.QFrame):
         title_row.addWidget(self.name_label)
 
         # 类型徽标 (CHECKER / ACTION)
-        is_checker = getattr(tool_cls, "is_checker", True)
         self.type_badge = QtWidgets.QLabel("CHECKER" if is_checker else "ACTION")
         self.type_badge.setStyleSheet(category_badge_style(is_checker))
         title_row.addWidget(self.type_badge)
@@ -167,8 +163,6 @@ class ToolItemWidget(QtWidgets.QFrame):
         """点击单个运行按钮。"""
         if self.run_callback:
             self.run_callback(self.tool_cls)
-        elif self.request_run:
-            self.request_run.emit(self.tool_cls)
 
     def _set_status_display(self, color: str, text: str):
         """更新状态文本与高亮样式。"""

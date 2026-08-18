@@ -54,7 +54,6 @@ def test_freeze_transform_calls_adapter():
 def test_registry_finds_all_example_tools():
     ids = set(t.tool_id() for t in ToolRegistry().refresh())
     expected = {
-        "example.probe_pass",
         "naming.prefix",
         "material.default",
         "cleanup.delete_history",
@@ -68,4 +67,4 @@ def test_runner_runs_all_tools_end_to_end():
     ctx = ToolContext(adapter=adapter)
     classes = list(ToolRegistry().refresh())
     report = ToolRunner().run(classes, ctx=ctx)
-    assert report.summary() == {"total": 5, "pass": 3, "fail": 2, "error": 0}
+    assert report.summary() == {"total": 4, "pass": 2, "fail": 2, "error": 0}

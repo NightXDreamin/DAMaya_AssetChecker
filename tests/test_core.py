@@ -40,10 +40,12 @@ def test_render_log_error_keeps_traceback():
     assert any("RuntimeError: boom" in l for l in lines)
 
 
-def test_registry_discovers_probe():
+def test_registry_discovers_naming():
     reg = ToolRegistry()
     ids = [t.tool_id() for t in reg.refresh()]
-    assert "example.probe_pass" in ids
+    assert "naming.prefix" in ids
+    # probe 已迁移到 examples/，不应再被发现
+    assert "example.probe_pass" not in ids
 
 
 def test_tool_runs_with_mock_adapter():

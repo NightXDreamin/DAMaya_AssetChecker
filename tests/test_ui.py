@@ -1,6 +1,5 @@
 """UI 模块逻辑与样式单元测试。"""
 from dcc_checker.core import ToolResult, ToolStatus
-from dcc_checker.tools.probe import ProbePassTool
 from dcc_checker.tools.naming import NamingPrefixTool
 from dcc_checker.tools.cleanup import DeleteHistoryTool
 from dcc_checker.ui import styles
@@ -16,17 +15,11 @@ def test_styles_constants():
 
 
 def test_style_helper_functions():
-    card_qss = styles.stat_card_style("#ffffff")
-    assert "border: 1px solid #ffffff;" in card_qss
-
-    tool_qss = styles.tool_card_style(is_hovered=True)
-    assert styles.BG_CARD_HOVER in tool_qss
-
     badge_checker = styles.category_badge_style(is_checker=True)
     assert "#5bc0be" in badge_checker
 
     badge_action = styles.category_badge_style(is_checker=False)
-    assert "#f0a500" in badge_action
+    assert "#ff6b6b" in badge_action
 
     status_badge = styles.status_badge_style("#2ecc71")
     assert "color: #2ecc71;" in status_badge
@@ -60,13 +53,14 @@ def test_tool_filter_matching_logic():
 
 def test_group_tools_by_category():
     from dcc_checker.ui.group_container import group_tools_by_category
+    from dcc_checker.tools.transform import FreezeTransformTool
 
-    tools = [NamingPrefixTool, DeleteHistoryTool, ProbePassTool, NamingPrefixTool]
+    tools = [NamingPrefixTool, DeleteHistoryTool, FreezeTransformTool, NamingPrefixTool]
     grouped = group_tools_by_category(tools)
-    assert list(grouped.keys()) == ["Naming", "Cleanup", "Example"]
+    assert list(grouped.keys()) == ["Naming", "Cleanup", "Transform"]
     assert grouped["Naming"] == [NamingPrefixTool, NamingPrefixTool]  # 保持原顺序
     assert grouped["Cleanup"] == [DeleteHistoryTool]
-    assert grouped["Example"] == [ProbePassTool]
+    assert grouped["Transform"] == [FreezeTransformTool]
 
 
 def test_group_tools_default_category():

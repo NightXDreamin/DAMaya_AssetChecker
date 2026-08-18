@@ -9,6 +9,7 @@ from typing import List, Optional, Type
 from dcc_checker.adapters.maya_adapter import MayaAdapter
 from dcc_checker.core import BaseTool, RunReport, ToolContext, ToolRunner, render_log
 from dcc_checker.core.registry import ToolRegistry
+from dcc_checker import __version__ as PACKAGE_VERSION
 from dcc_checker.ui.common import QtCore, QtGui, QtWidgets, maya_main_window, shiboken
 from dcc_checker.ui.group_container import CollapsibleGroup, group_tools_by_category
 from dcc_checker.ui.styles import (
@@ -21,7 +22,7 @@ from dcc_checker.ui.tool_item_widget import ToolItemWidget
 
 WINDOW_TITLE = "DCC Asset Checker"
 PANEL_OBJECT_NAME = "dccCheckerToolDock"
-VERSION_STRING = "v1.0.0"
+VERSION_STRING = "v" + PACKAGE_VERSION
 
 
 class ToolDockWidget(QtWidgets.QDockWidget):
@@ -316,6 +317,11 @@ class ToolDockWidget(QtWidgets.QDockWidget):
         for w in self._item_widgets:
             w.set_checked(True)
 
+    def select_checkers_only(self):
+        """只勾选检测类工具（is_checker=True），动作类工具不勾选。"""
+        for w in self._item_widgets:
+            w.set_checked(getattr(w.tool_cls, "is_checker", True))
+
     def select_none(self):
         for w in self._item_widgets:
             w.set_checked(False)
@@ -350,12 +356,42 @@ class ToolDockWidget(QtWidgets.QDockWidget):
             self._append_log("[WARN] No tools selected to run.")
             return None
 
+        if not self._confirm_action_tools(selected_classes):
+            return None
+
         return self._execute_tools(selected_classes, selected_widgets)
 
     def run_single_tool(self, tool_cls: Type[BaseTool]) -> RunReport:
         """独立运行单条工具。"""
         matching_widgets = [w for w in self._item_widgets if w.tool_cls.tool_id() == tool_cls.tool_id()]
+        if not self._confirm_action_tools([tool_cls]):
+            return RunReport([])
         return self._execute_tools([tool_cls], matching_widgets)
+
+    def _confirm_action_tools(self, tool_classes: List[Type[BaseTool]]) -> bool:
+        """若包含破坏性动作类工具，弹确认对话框并显示将影响的网格数。"""
+        action_cls = [c for c in tool_classes if not getattr(c, "is_checker", True)]
+        if not action_cls:
+            return True
+
+        try:
+            mesh_count = len(self.adapter.list_meshes())
+        except Exception:
+            mesh_count = -1
+
+        names = ", ".join(c.name or c.tool_id() for c in action_cls)
+        mesh_str = "%d" % mesh_count if mesh_count >= 0 else "unknown number of"
+        msg = (
+            "即将执行以下破坏性动作类工具：\n%s\n\n"
+            "这些操作会修改 %s 个网格（冻结变换 / 删除历史等）。\n"
+            "是否继续？" % (names, mesh_str)
+        )
+        ret = QtWidgets.QMessageBox.question(
+            self, "确认执行动作类工具", msg,
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
+        return ret == QtWidgets.QMessageBox.Yes
 
     def _execute_tools(self, tool_classes: List[Type[BaseTool]], target_widgets: List[ToolItemWidget]) -> RunReport:
         """核心执行流水线：更新进度、渲染彩色日志与填装问题检查器。"""

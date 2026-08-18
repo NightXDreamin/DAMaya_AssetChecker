@@ -32,10 +32,10 @@ def show_dock_panel():
 
 
 def _run_all_checks():
-    """在后台或面板中一键执行所有工具检查。"""
+    """在面板中一键执行所有「检测类」工具检查（动作类不执行，避免破坏性操作）。"""
     dock = show_dock_panel()
     if dock:
-        dock.select_all()
+        dock.select_checkers_only()
         dock.run_selected()
 
 

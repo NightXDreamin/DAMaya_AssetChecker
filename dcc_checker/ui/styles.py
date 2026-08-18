@@ -203,37 +203,6 @@ QLineEdit:focus {{
     color: #ffffff;
 }}
 
-/* 下拉选择框 */
-QComboBox {{
-    background-color: #2d2d2d;
-    color: #cccccc;
-    border: 1px solid #3e3e42;
-    border-radius: 3px;
-    padding: 4px 8px;
-    font-size: {em(12)};
-    min-width: 100px;
-}}
-
-QComboBox:hover {{
-    background-color: #333333;
-    border-color: #4f4f54;
-}}
-
-QComboBox::drop-down {{
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 18px;
-    border-left: 1px solid #3e3e42;
-}}
-
-QComboBox QAbstractItemView {{
-    background-color: #252526;
-    color: #cccccc;
-    border: 1px solid #3e3e42;
-    selection-background-color: #094771;
-    selection-color: #ffffff;
-}}
-
 /* 复选框 */
 QCheckBox {{
     color: #cccccc;
@@ -260,22 +229,6 @@ QCheckBox::indicator:hover {{
 QCheckBox::indicator:checked {{
     background-color: #0e639c;
     border-color: #1177bb;
-}}
-
-/* 进度条 */
-QProgressBar {{
-    background-color: #1a1a1a;
-    border: 1px solid #333333;
-    border-radius: 3px;
-    text-align: center;
-    color: #ffffff;
-    font-size: {em(11)};
-    font-weight: bold;
-}}
-
-QProgressBar::chunk {{
-    background-color: #0e639c;
-    border-radius: 2px;
 }}
 
 /* 文本控制台 */
@@ -392,31 +345,6 @@ QToolTip {{
 DARK_THEME_QSS = build_dark_qss(DEFAULT_FONT_PX)
 
 
-def stat_card_style(border_color: str = BORDER_MID) -> str:
-    """生成统计卡片的 QSS 样式。"""
-    return f"""
-        QFrame {{
-            background-color: {BG_CARD};
-            border: 1px solid {border_color};
-            border-radius: 4px;
-            padding: 3px 6px;
-        }}
-    """
-
-
-def tool_card_style(is_hovered: bool = False) -> str:
-    """生成工具卡片行的 QSS 样式。"""
-    bg = BG_CARD_HOVER if is_hovered else BG_CARD
-    return f"""
-        QFrame#tool_card {{
-            background-color: {bg};
-            border: 1px solid {BORDER_DARK};
-            border-radius: 4px;
-            margin: 1px 0px;
-        }}
-    """
-
-
 def category_badge_style(is_checker: bool = True) -> str:
     """生成类别/类型标签样式。"""
     if is_checker:
@@ -434,9 +362,9 @@ def category_badge_style(is_checker: bool = True) -> str:
     else:
         return """
             QLabel {
-                background-color: #3a2e1b;
-                color: #f0a500;
-                border: 1px solid #574426;
+                background-color: #3a1518;
+                color: #ff6b6b;
+                border: 1px solid #5e2327;
                 border-radius: 2px;
                 padding: 1px 5px;
                 font-size: 0.69em;

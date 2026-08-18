@@ -6,7 +6,6 @@ try:
     from PySide6 import QtCore, QtGui, QtWidgets
     QtMimeData = QtCore.QMimeData
     QtByteArray = QtCore.QByteArray
-    QtPoint = QtCore.QPoint
     QtDrag = QtGui.QDrag
     try:
         import shiboken6 as shiboken
@@ -17,7 +16,6 @@ except ImportError:
         from PySide2 import QtCore, QtGui, QtWidgets
         QtMimeData = QtCore.QMimeData
         QtByteArray = QtCore.QByteArray
-        QtPoint = QtCore.QPoint
         QtDrag = QtGui.QDrag
         try:
             import shiboken2 as shiboken
@@ -30,7 +28,6 @@ except ImportError:
         shiboken = None
         QtMimeData = None
         QtByteArray = None
-        QtPoint = None
         QtDrag = None
 
 
