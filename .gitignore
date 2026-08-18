@@ -1,0 +1,28 @@
+# Roadmap（按文档要求忽略）
+DCC_Asset_Checker_Roadmap.md
+
+# 工具内部元数据
+.reasonix/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
