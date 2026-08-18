@@ -30,11 +30,13 @@ from dcc_checker.ui.styles import (
 class ToolItemWidget(QtWidgets.QFrame):
     """面板工具列表中的一行卡片组件。"""
 
-    def __init__(self, tool_cls, parent=None, run_callback: Optional[Callable] = None):
+    def __init__(self, tool_cls, parent=None, run_callback: Optional[Callable] = None, base_font_size: int = 13):
         super().__init__(parent)
         self.tool_cls = tool_cls
         self.run_callback = run_callback
         self._current_result = None
+        self._font_size = base_font_size
+        self._current_color = COLOR_IDLE
 
         self.setObjectName("tool_card")
         self.setStyleSheet(f"""
@@ -50,8 +52,8 @@ class ToolItemWidget(QtWidgets.QFrame):
         """)
 
         layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(8, 6, 8, 6)
-        layout.setSpacing(8)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setSpacing(10)
 
         # 1. 勾选框 —— 只有检测类工具默认勾选，动作类默认不勾（避免误执行破坏性操作）
         is_checker = getattr(tool_cls, "is_checker", True)
@@ -61,27 +63,27 @@ class ToolItemWidget(QtWidgets.QFrame):
 
         # 2. 工具主信息（标题与描述）
         info_layout = QtWidgets.QVBoxLayout()
-        info_layout.setSpacing(2)
+        info_layout.setSpacing(3)
         info_layout.setContentsMargins(0, 0, 0, 0)
 
         title_row = QtWidgets.QHBoxLayout()
-        title_row.setSpacing(6)
+        title_row.setSpacing(8)
         title_row.setContentsMargins(0, 0, 0, 0)
 
         # 工具显示名
         self.name_label = QtWidgets.QLabel(tool_cls.name or tool_cls.tool_id())
-        self.name_label.setStyleSheet("font-weight: bold; color: #e0e0e0; font-size: 0.85em;")
+        self.name_label.setStyleSheet(f"font-weight: bold; color: #ffffff; font-size: {self._font_size}px;")
         title_row.addWidget(self.name_label)
 
         # 类型徽标 (CHECKER / ACTION)
         self.type_badge = QtWidgets.QLabel("CHECKER" if is_checker else "ACTION")
-        self.type_badge.setStyleSheet(category_badge_style(is_checker))
+        self.type_badge.setStyleSheet(category_badge_style(is_checker, self._font_size))
         title_row.addWidget(self.type_badge)
 
         # 类别小标签
         cat_name = getattr(tool_cls, "category", "General")
         self.cat_label = QtWidgets.QLabel(f"[{cat_name}]")
-        self.cat_label.setStyleSheet("color: #707070; font-size: 0.77em;")
+        self.cat_label.setStyleSheet(f"color: #888888; font-size: {max(9, self._font_size - 2)}px;")
         title_row.addWidget(self.cat_label)
         title_row.addStretch()
 
@@ -91,7 +93,7 @@ class ToolItemWidget(QtWidgets.QFrame):
         desc = getattr(tool_cls, "description", "")
         if desc:
             self.desc_label = QtWidgets.QLabel(desc)
-            self.desc_label.setStyleSheet("color: #888888; font-size: 0.77em;")
+            self.desc_label.setStyleSheet(f"color: #9e9e9e; font-size: {max(10, self._font_size - 1)}px;")
             self.desc_label.setWordWrap(True)
             info_layout.addWidget(self.desc_label)
         else:
@@ -103,15 +105,16 @@ class ToolItemWidget(QtWidgets.QFrame):
         self.run_btn = QtWidgets.QPushButton("Run")
         self.run_btn.setObjectName("icon_button")
         self.run_btn.setToolTip("单独运行此工具")
-        self.run_btn.setFixedWidth(42)
-        self.run_btn.setFixedHeight(22)
+        self.run_btn.setMinimumWidth(54)
+        self.run_btn.setMinimumHeight(24)
         self.run_btn.clicked.connect(self._on_run_clicked)
         layout.addWidget(self.run_btn)
 
         # 4. 状态指示徽标
         self.status_label = QtWidgets.QLabel("[IDLE]")
-        self.status_label.setMinimumWidth(55)
-        self.status_label.setAlignment(QtCore.Qt.AlignCenter if QtCore else None)
+        self.status_label.setFixedWidth(72)
+        if QtCore is not None:
+            self.status_label.setAlignment(QtCore.Qt.AlignCenter)
         self._set_status_display(COLOR_IDLE, "[IDLE]")
         layout.addWidget(self.status_label)
 
@@ -126,6 +129,18 @@ class ToolItemWidget(QtWidgets.QFrame):
 
         # 拖拽排序状态
         self._drag_start_pos = None
+
+    # ---- 动态字号调整 ----
+    def update_font_size(self, base_px: int):
+        """动态更新组件字号。"""
+        self._font_size = base_px
+        is_checker = getattr(self.tool_cls, "is_checker", True)
+        self.name_label.setStyleSheet(f"font-weight: bold; color: #ffffff; font-size: {base_px}px;")
+        if self.desc_label:
+            self.desc_label.setStyleSheet(f"color: #9e9e9e; font-size: {max(10, base_px - 1)}px;")
+        self.cat_label.setStyleSheet(f"color: #888888; font-size: {max(9, base_px - 2)}px;")
+        self.type_badge.setStyleSheet(category_badge_style(is_checker, base_px))
+        self.status_label.setStyleSheet(status_badge_style(self._current_color, base_px))
 
     # ---- 拖拽启动 ----
     TOOL_DRAG_MIME = "application/x-dcc-checker-tool"
@@ -166,8 +181,9 @@ class ToolItemWidget(QtWidgets.QFrame):
 
     def _set_status_display(self, color: str, text: str):
         """更新状态文本与高亮样式。"""
+        self._current_color = color
         self.status_label.setText(text)
-        self.status_label.setStyleSheet(status_badge_style(color))
+        self.status_label.setStyleSheet(status_badge_style(color, self._font_size))
 
     # ---- 对外状态与控制接口（兼容现有测试和调用） ----
     def is_checked(self) -> bool:
@@ -187,14 +203,12 @@ class ToolItemWidget(QtWidgets.QFrame):
         self._set_status_display(COLOR_RUNNING, "[RUNNING]")
 
     def set_result(self, result: ToolResult) -> None:
-        """按 ToolResult 设置结果状态。"""
+        """按 ToolResult 设置结果状态（只显示纯状态名，不拼接数字，保持对齐）。"""
         self._current_result = result
         if result.status is ToolStatus.PASS:
             self._set_status_display(COLOR_PASS, "[PASS]")
         elif result.status is ToolStatus.FAIL:
-            issue_count = len(result.messages) if result.messages else 0
-            label = f"[FAIL ({issue_count})]" if issue_count > 0 else "[FAIL]"
-            self._set_status_display(COLOR_FAIL, label)
+            self._set_status_display(COLOR_FAIL, "[FAIL]")
         elif result.status is ToolStatus.ERROR:
             self._set_status_display(COLOR_ERROR, "[ERROR]")
         else:

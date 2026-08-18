@@ -4,7 +4,7 @@
 * 用全局 MEL 变量 ``$gMainWindow`` 获取主窗口菜单栏（不硬编码 "MayaWindow"）
 * ``cmds.about(batch=True)`` 批量模式保护
 * 幂等安装（先删旧菜单再建）
-* 提供控制面板呼出、一键全量检查与问题节点高亮等菜单项
+* 提供控制面板呼出、一键全量检查、问题节点高亮与偏好设置等菜单项
 """
 from __future__ import annotations
 
@@ -25,10 +25,17 @@ def _main_window_menu_bar():
 
 
 def show_dock_panel():
-    """呼出工具 dock 面板。"""
+    """呼出控制面板独立窗口。"""
     from dcc_checker.ui.dock_panel import ToolDockWidget
 
     return ToolDockWidget.open_panel()
+
+
+def _open_settings():
+    """打开设置窗口。"""
+    dock = show_dock_panel()
+    if dock:
+        dock.open_settings()
 
 
 def _run_all_checks():
@@ -63,8 +70,12 @@ def install():
 
     # 1. 呼出主面板
     cmds.menuItem(
-        label="Open Tool Dock (打开检查面板)",
+        label="Open Control Panel (打开控制面板)",
         command=lambda *args: show_dock_panel(),
+    )
+    cmds.menuItem(
+        label="Settings (偏好设置)",
+        command=lambda *args: _open_settings(),
     )
     cmds.menuItem(divider=True)
 

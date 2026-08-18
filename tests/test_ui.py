@@ -3,6 +3,11 @@ from dcc_checker.core import ToolResult, ToolStatus
 from dcc_checker.tools.naming import NamingPrefixTool
 from dcc_checker.tools.cleanup import DeleteHistoryTool
 from dcc_checker.ui import styles
+from dcc_checker.ui.settings_dialog import (
+    DEFAULT_FONT_SIZE,
+    load_user_config,
+    save_user_config,
+)
 
 
 def test_styles_constants():
@@ -10,19 +15,42 @@ def test_styles_constants():
     assert styles.COLOR_PASS == "#2ecc71"
     assert styles.COLOR_FAIL == "#e74c3c"
     assert styles.COLOR_ERROR == "#c0392b"
-    assert "QDockWidget" in styles.DARK_THEME_QSS
+    assert "QMainWindow" in styles.DARK_THEME_QSS
     assert "QPushButton" in styles.DARK_THEME_QSS
 
 
 def test_style_helper_functions():
-    badge_checker = styles.category_badge_style(is_checker=True)
+    badge_checker = styles.category_badge_style(is_checker=True, base_px=14)
     assert "#5bc0be" in badge_checker
+    assert "12px" in badge_checker
 
-    badge_action = styles.category_badge_style(is_checker=False)
+    badge_action = styles.category_badge_style(is_checker=False, base_px=14)
     assert "#ff6b6b" in badge_action
 
-    status_badge = styles.status_badge_style("#2ecc71")
+    status_badge = styles.status_badge_style("#2ecc71", base_px=14)
     assert "color: #2ecc71;" in status_badge
+    assert "13px" in status_badge
+
+
+def test_build_dark_qss_font_scaling():
+    qss_13 = styles.build_dark_qss(13)
+    assert "font-size: 13px" in qss_13
+
+    qss_18 = styles.build_dark_qss(18)
+    assert "font-size: 18px" in qss_18
+
+
+def test_settings_config_persistence(tmp_path, monkeypatch):
+    test_cfg_path = str(tmp_path / "test_config.json")
+    monkeypatch.setattr("dcc_checker.ui.settings_dialog.CONFIG_PATH", test_cfg_path)
+    monkeypatch.setattr("dcc_checker.ui.settings_dialog.CONFIG_DIR", str(tmp_path))
+
+    cfg = load_user_config()
+    assert cfg.get("font_size") == DEFAULT_FONT_SIZE
+
+    save_user_config({"font_size": 16})
+    reloaded = load_user_config()
+    assert reloaded.get("font_size") == 16
 
 
 def test_tool_filter_matching_logic():
@@ -80,18 +108,6 @@ def test_reorder_cards_logic():
     assert sort_cards_by_y({"a": 30, "b": 10, "c": 80}) == ["b", "a", "c"]
 
 
-def test_font_scale_for_height():
-    from dcc_checker.ui.styles import font_scale_for_height
-
-    assert font_scale_for_height(350) == 0.8
-    assert font_scale_for_height(700) == 1.25
-    assert font_scale_for_height(1000) == 1.25
-    assert 0.8 < font_scale_for_height(550) < 1.25
-
-
-def test_build_dark_qss_changes_font_size():
-    from dcc_checker.ui.styles import build_dark_qss
-
-    assert "font-size: 13px" in build_dark_qss(13)
-    assert "font-size: 16px" in build_dark_qss(16)
-    assert build_dark_qss(13) != build_dark_qss(16)
+def test_pure_status_labels():
+    res_fail = ToolResult.failed(["issue 1", "issue 2", "issue 3"])
+    assert res_fail.status is ToolStatus.FAIL

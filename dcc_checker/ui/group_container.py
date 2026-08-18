@@ -156,6 +156,12 @@ else:
         def set_count(self, count: int):
             self.header_btn.setText(f"  {self.category}   ({count})")
 
+        def update_font_size(self, base_px: int):
+            self.header_btn.setStyleSheet(group_title_style(base_px))
+            for card in self._cards:
+                if hasattr(card, "update_font_size"):
+                    card.update_font_size(base_px)
+
         # ---- 拖拽排序 ----
         def eventFilter(self, obj, event):
             if obj is self.cards_host:
