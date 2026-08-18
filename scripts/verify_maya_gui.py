@@ -18,7 +18,7 @@ from dcc_checker.ui import main_menu  # noqa: E402
 
 # 1) 安装顶部菜单
 main_menu.install()
-print("[1] 菜单已安装 -> 主菜单栏应出现 DCC Checker -> Open Tool Dock")
+print("[1] 菜单已安装 -> 主菜单栏应出现 DAMaya Asset Checker -> Open Tool Dock")
 
 # 2) 造脏场景：pCube1（命名不合规 + 默认材质，触发两条 FAIL）
 cmds.file(new=True, force=True)
@@ -38,7 +38,7 @@ print("    (pCube1 触发 naming.prefix 与 material.default 两条 FAIL -> 红�
 
 print()
 print("VERIFY DONE - 请目视确认：")
-print("  * 顶部菜单出现且可呼出面板 (DCC Checker)")
+print("  * 顶部菜单出现且可呼出面板 (DAMaya Asset Checker)")
 print("  * 工具按 category 折叠分组，组标题可展开/折叠")
 print("  * 工具卡片带 Checkbox、[CHECKER]/[ACTION] 徽标、Run 独立测试按钮")
 print("  * 搜索框支持按名称/ID/描述/类别实时过滤")

@@ -1,4 +1,4 @@
-# DCC Asset Checker — Maya 可插拔工具框架
+# DAMaya Asset Checker — Maya 可插拔工具框架
 
 Maya 端「提交前」资产合规检查器 + 可插拔工具 dock 面板。
 
@@ -21,7 +21,7 @@ Maya 端「提交前」资产合规检查器 + 可插拔工具 dock 面板。
 python scripts/install_maya_setup.py
 ```
 
-重启 Maya 后，主菜单栏自动出现 `DCC Checker → Open Tool Dock`。脚本幂等，可重复运行。
+重启 Maya 后，主菜单栏自动出现 `DAMaya Asset Checker → Open Tool Dock`。脚本幂等，可重复运行。
 
 ### 方式二：手动加载（单次生效）
 

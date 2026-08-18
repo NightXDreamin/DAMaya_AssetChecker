@@ -1,4 +1,4 @@
-"""把 DCC Checker 挂进 Maya 启动脚本（userSetup.py），实现「开 Maya 自动出菜单」。
+"""把 DAMaya Asset Checker 挂进 Maya 启动脚本（userSetup.py），实现「开 Maya 自动出菜单」。
 
 参考 DAMaya_MCP 的 install_maya_mcp.py：
 * 定位 Windows 用户 Documents 目录（兼容 OneDrive/重定向）
@@ -29,7 +29,7 @@ def _documents_dir():
 
 
 def _hook_code():
-    return """# --- DCC Checker Startup Hook ---
+    return """# --- DAMaya Asset Checker Startup Hook ---
 import sys
 _project_path = r"{root}"
 if _project_path not in sys.path:
@@ -44,13 +44,13 @@ try:
 
     _mutils.executeDeferred(_dcc_checker_startup)
 except Exception as _e:
-    print("DCC Checker startup hook failed: %r" % _e)
-# --- End of DCC Checker Startup Hook ---""".format(root=PROJECT_ROOT)
+    print("DAMaya Asset Checker startup hook failed: %r" % _e)
+# --- End of DAMaya Asset Checker Startup Hook ---""".format(root=PROJECT_ROOT)
 
 
 def main():
-    hook_start = "# --- DCC Checker Startup Hook ---"
-    hook_end = "# --- End of DCC Checker Startup Hook ---"
+    hook_start = "# --- DAMaya Asset Checker Startup Hook ---"
+    hook_end = "# --- End of DAMaya Asset Checker Startup Hook ---"
 
     maya_scripts_dir = os.path.join(_documents_dir(), "maya", "scripts")
     user_setup_path = os.path.join(maya_scripts_dir, "userSetup.py")
@@ -67,17 +67,17 @@ def main():
         start = existing.find(hook_start)
         end = existing.find(hook_end) + len(hook_end)
         new_content = existing[:start] + hook_code + existing[end:]
-        print("[*] 已存在 DCC Checker hook，更新其内容。")
+        print("[*] 已存在 DAMaya Asset Checker hook，更新其内容。")
     else:
         separator = "\n\n" if existing else ""
         new_content = existing + separator + hook_code
-        print("[+] 新增 DCC Checker hook。")
+        print("[+] 新增 DAMaya Asset Checker hook。")
 
     with open(user_setup_path, "w", encoding="utf-8") as f:
         f.write(new_content)
 
     print("[SUCCESS] 已写入:", user_setup_path)
-    print("重启 Maya 后，主菜单栏将自动出现 DCC Checker -> Open Tool Dock。")
+    print("重启 Maya 后，主菜单栏将自动出现 DAMaya Asset Checker -> Open Tool Dock。")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""在 Maya 主菜单栏添加「DCC Checker」下拉菜单。
+"""在 Maya 主菜单栏添加「DAMaya Asset Checker」下拉菜单。
 
 参考 DAMaya_MCP 的挂载方式：
 * 用全局 MEL 变量 ``$gMainWindow`` 获取主窗口菜单栏（不硬编码 "MayaWindow"）
@@ -12,7 +12,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 
 MENU_NAME = "dccCheckerMenu"
-MENU_LABEL = "DCC Checker"
+MENU_LABEL = "DAMaya Asset Checker"
 
 
 def _main_window_menu_bar():

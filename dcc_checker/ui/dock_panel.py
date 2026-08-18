@@ -20,7 +20,7 @@ from dcc_checker.ui.styles import (
 )
 from dcc_checker.ui.tool_item_widget import ToolItemWidget
 
-WINDOW_TITLE = "DCC Asset Checker"
+WINDOW_TITLE = "DAMaya Asset Checker"
 PANEL_OBJECT_NAME = "dccCheckerToolDock"
 VERSION_STRING = "v" + PACKAGE_VERSION
 
